@@ -1,0 +1,18 @@
+[package]
+name = "backend-for-napp9-learn"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+actix-server = "2"
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-native-tls"] }
+bcrypt = "0.17"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1"
+rand = "0.8"
+
+[dev-dependencies]
+actix-rt = "2.5"  # For async test runtime
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio"] }  # Needed for testing with SQLite
