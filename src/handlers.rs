@@ -82,7 +82,7 @@ pub async fn get_user(buffer: *mut c_char) {
 
 pub async fn init(buffer: *mut c_char) {
     match crate::state::init_app_state().await {
-        Ok(_) => write_str_to_buffer(buffer, "ok"),
+        Ok(_) => write_str_to_buffer(buffer, "App State Initialised"),
         Err(e) => write_str_to_buffer(buffer, &format!("error: {}", e)),
     }
 }
