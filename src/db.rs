@@ -1,7 +1,7 @@
+use rusqlite::{Connection, Result};
 use serde::{Deserialize, Serialize};
-use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
 
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     pub id: i64,
     pub username: String,
@@ -18,32 +18,29 @@ impl User {
     }
 }
 
-pub type DbPool = SqlitePool;
+// Instead of a pool, use a direct Connection for sync rusqlite
+pub type DbConn = Connection;
 
-pub async fn init_db() -> Result<DbPool, sqlx::Error> {
-    let pool = SqlitePoolOptions::new()
-        .max_connections(16)
-        .connect("sqlite:main.db")
-        .await?;
+pub fn init_db() -> Result<DbConn> {
+    let conn = Connection::open("main.db")?;
 
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS users (
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL
-        )",
-    )
-    .execute(&pool)
-    .await?;
-
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS sessions (
+        );
+        CREATE TABLE IF NOT EXISTS sessions (
             token TEXT PRIMARY KEY,
             data TEXT
-        )",
-    )
-    .execute(&pool)
-    .await?;
+        );
+        CREATE TABLE IF NOT EXISTS connected_users (
+            username TEXT PRIMARY KEY,
+            points INTEGER CHECK (points >= 0)
+        );
+        ",
+    )?;
 
-    Ok(pool)
+    Ok(conn)
 }
