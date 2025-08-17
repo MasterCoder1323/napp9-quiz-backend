@@ -4,7 +4,7 @@ use std::error::Error;
 
 fn generate_token() -> String {
     use fastrand::Rng;
-    let rng = fastrand::Rng::new();
+    let rng = Rng::new();
     let charset = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     (0..64)

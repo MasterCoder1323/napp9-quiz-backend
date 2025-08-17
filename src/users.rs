@@ -3,6 +3,7 @@ use crate::sessions::{create_session, get_session_data};
 use crate::hash::{hash_password, verify_password};  // your new hash module
 use rusqlite::{params, Result};
 use std::error::Error;
+use rusqlite::OptionalExtension;
 
 pub fn add_user(conn: &DbConn, username: &str, password: &str) -> Result<String, Box<dyn Error>> {
     let hash = hash_password(password);

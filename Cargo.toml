@@ -13,5 +13,6 @@ fastrand = "1"
 base64 = "0.22"
 subtle = "2"
 rusqlite = "0.29"
-chrono = { version = "0.4", default-features = false, features = ["alloc", "std"] }
-
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+hmac = "0.12"
+tungstenite = "0.21"
