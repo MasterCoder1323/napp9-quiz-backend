@@ -1,7 +1,8 @@
+use serde::Serialize;
 use std::collections::HashMap;
+use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 use tungstenite::WebSocket;
-use std::net::TcpStream;
 
 /// Type alias for user points
 pub type UserPoints = (String, u16);
@@ -42,8 +43,8 @@ impl AppState {
 
     /// Add a connected client
     pub fn add_client(&self, username: String, socket: Arc<Mutex<WebSocket<TcpStream>>>) {
-		self.clients.lock().unwrap().insert(username, socket);
-	}
+        self.clients.lock().unwrap().insert(username, socket);
+    }
 
     /// Remove a client by username
     pub fn remove_client(&self, username: &str) {
@@ -74,11 +75,19 @@ impl AppState {
 
     /// Get list of connected usernames
     pub fn list_connected_users(&self) -> Vec<String> {
-        self.clients
-            .lock()
-            .unwrap()
-            .keys()
-            .cloned()
-            .collect()
+        self.clients.lock().unwrap().keys().cloned().collect()
+    }
+}
+
+#[derive(Serialize)]
+pub struct PointsSnapshot {
+    pub points: Vec<UserPoints>,
+}
+
+impl AppState {
+    pub fn to_points_snapshot(&self) -> PointsSnapshot {
+        PointsSnapshot {
+            points: self.get_points_snapshot(),
+        }
     }
 }

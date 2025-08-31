@@ -1,14 +1,16 @@
+#![allow(dead_code)]
+
 mod db;
 mod game;
 mod handlers;
-mod sessions;
 mod hash;
+mod main_http;
+mod sessions;
 mod state;
 mod users;
-mod main_http;
 
-use main_http::tiny_http_main;
 use game::server::ws_main;
+use main_http::tiny_http_main;
 use std::thread;
 
 fn main() {

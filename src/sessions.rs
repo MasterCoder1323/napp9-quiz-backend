@@ -15,7 +15,6 @@ fn generate_token() -> String {
         .collect()
 }
 
-
 pub fn create_session(conn: &Connection, data: String) -> Result<String, Box<dyn Error>> {
     let token = generate_token();
     conn.execute(

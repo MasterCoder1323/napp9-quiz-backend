@@ -1,9 +1,9 @@
-use pbkdf2::pbkdf2;
-use fastrand::Rng;
 use base64::{engine::general_purpose, Engine as _};
-use subtle::ConstantTimeEq;
+use fastrand::Rng;
+use hmac::Hmac;
+use pbkdf2::pbkdf2;
 use sha2::Sha256;
-use hmac::Hmac; // ← Add this
+use subtle::ConstantTimeEq; // ← Add this
 type HmacSha256 = Hmac<Sha256>; // ← Type alias for clarity
 
 const ITERATIONS: u32 = 100_000;
@@ -15,7 +15,8 @@ pub fn hash_password(password: &str) -> String {
     Rng::new().fill(&mut salt);
 
     let mut hash = [0u8; HASH_LEN];
-    pbkdf2::<HmacSha256>( // ← Use HmacSha256 here
+    pbkdf2::<HmacSha256>(
+        // ← Use HmacSha256 here
         password.as_bytes(),
         &salt,
         ITERATIONS,
@@ -43,7 +44,8 @@ pub fn verify_password(password: &str, stored: &str) -> bool {
     let hash = &decoded[SALT_LEN..];
 
     let mut computed_hash = [0u8; HASH_LEN];
-    pbkdf2::<HmacSha256>( // ← Same here
+    pbkdf2::<HmacSha256>(
+        // ← Same here
         password.as_bytes(),
         salt,
         ITERATIONS,

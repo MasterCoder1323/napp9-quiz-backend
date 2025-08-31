@@ -1,6 +1,6 @@
 [package]
 name = "backend-for-napp9-learn"
-version = "0.1.0"
+version = "0.10.0"
 edition = "2021"
 
 [dependencies]

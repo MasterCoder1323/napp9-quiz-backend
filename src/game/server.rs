@@ -1,11 +1,12 @@
+use super::questions::*;
 use super::state::*;
 use super::types::*;
-use super::questions::*;
+use serde_json;
+use serde_json::json;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use tungstenite::accept;
-use serde_json;
 use tungstenite::Message;
 
 pub fn ws_main() {
@@ -38,16 +39,20 @@ pub fn ws_main() {
 
                     println!("{} connected", username);
                     ws_state.add_client(username.clone(), Arc::clone(&ws_arc));
-
+                    {
+                        let points_snapshot = ws_state.to_points_snapshot();
+                        ws_state.send_to_client(
+                            &username,
+                            &serde_json::to_string(&points_snapshot).unwrap(),
+                        );
+                    }
                     loop {
                         // Pick a random question
                         let (question, correct_index) = QUESTIONS.select_random_question();
 
                         // Send the question as JSON
-                        ws_state.send_to_client(
-                            &username,
-                            &serde_json::to_string(&question).unwrap(),
-                        );
+                        ws_state
+                            .send_to_client(&username, &serde_json::to_string(&question).unwrap());
 
                         // Wait for client response (expected to be the selected index as string)
                         let msg = {
@@ -60,13 +65,28 @@ pub fn ws_main() {
                                 // Parse the selected index
                                 if let Ok(selected_index) = text.trim().parse::<usize>() {
                                     if check_answer(selected_index, correct_index) {
-                                        ws_state.add_or_update_points(&username, 1);
-                                        ws_state.send_to_client(&username, "Correct!".into());
+                                        ws_state.add_or_update_points(&username, 1); // AppState handles increment
+                                        let points = ws_state
+                                            .get_points_snapshot()
+                                            .into_iter()
+                                            .find(|(name, _)| name == &username)
+                                            .map(|(_, pts)| pts)
+                                            .unwrap_or(0);
+
+                                        ws_state.send_to_client(&username, "0"); // 0 Is Correct
+                                        ws_state.broadcast(
+                                            &serde_json::to_string(
+                                                &json!({ "username": username, "points": points }),
+                                            )
+                                            .unwrap(),
+                                        );
                                     } else {
-                                        ws_state.send_to_client(&username, "Wrong!".into());
+                                        ws_state.send_to_client(&username, "1".into());
+                                        // 1 Is Wrong
                                     }
                                 } else {
-                                    ws_state.send_to_client(&username, "Invalid answer!".into());
+                                    ws_state.send_to_client(&username, "2".into());
+                                    // 2 is Invalid Answer
                                 }
                             }
                             Ok(Message::Close(_)) => {
