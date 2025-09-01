@@ -12,9 +12,9 @@ use tungstenite::Message;
 pub fn ws_main() {
     let state = Arc::new(AppState::new());
 
-    println!("Tungstenite Server Starting on port 56...");
-    let server = TcpListener::bind("localhost:56").expect("Cannot bind port 56");
-    println!("WebSocket Server running on port 56");
+    println!("Tungstenite Server Starting on port 2331...");
+    let server = TcpListener::bind("localhost:2331").expect("Cannot bind port 2331");
+    println!("WebSocket Server running on port 2331");
 
     for stream in server.incoming() {
         match stream {

@@ -8,14 +8,14 @@ use tiny_http::{Header, Request, Response, Server};
 static INIT: OnceLock<()> = OnceLock::new();
 
 pub fn tiny_http_main() {
-    println!("Starting server on http://localhost:55");
+    println!("Starting server on http://localhost:2330");
 
     // Initialize app state once, blocking
     INIT.get_or_init(|| {
         state::init_app_state().expect("Failed to init app state");
     });
 
-    let server = Server::http("localhost:55").expect("Failed to start server");
+    let server = Server::http("localhost:2330").expect("Failed to start server");
 
     for mut request in server.incoming_requests() {
         log_request(&request);
